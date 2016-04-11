@@ -1,9 +1,6 @@
-from __future__ import absolute_import
 import sqlite3
 
 from lektor.environment import PRIMARY_ALT
-import six
-from six.moves import range
 
 
 def _iter_parents(path):
@@ -72,7 +69,7 @@ def _process_search_results(builder, cur, alt, lang, limit):
 
     files_needed = set()
 
-    for path, infos in six.iteritems(mapping):
+    for path, infos in mapping.iteritems():
         info = _find_best_info(infos, alt, lang)
         if info is None:
             continue

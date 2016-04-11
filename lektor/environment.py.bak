@@ -1,4 +1,3 @@
-from __future__ import absolute_import
 import fnmatch
 import os
 import re
@@ -23,7 +22,6 @@ from lektor.context import url_to, get_asset_url, site_proxy, \
      config_proxy, get_ctx, get_locale
 from lektor.pluginsystem import PluginController
 from lektor.markdown import Markdown
-import six
 
 
 # Special value that identifies a target to the primary alt
@@ -117,7 +115,7 @@ def update_config_from_ini(config, inifile):
                 'locale': inifile.get('alternatives.%s.locale' % alt, 'en_US'),
             }
 
-    for alt, alt_data in six.iteritems(config['ALTERNATIVES']):
+    for alt, alt_data in config['ALTERNATIVES'].iteritems():
         if alt_data['primary']:
             config['PRIMARY_ALTERNATIVE'] = alt
             break
@@ -328,7 +326,7 @@ class Config(object):
     def get_alternative_url_prefixes(self):
         """Returns a list of alternative url prefixes by length."""
         items = [(v['url_prefix'].lstrip('/'), k)
-                 for k, v in six.iteritems(self.values['ALTERNATIVES'])
+                 for k, v in self.values['ALTERNATIVES'].iteritems()
                  if v['url_prefix']]
         items.sort(key=lambda x: -len(x[0]))
         return items
@@ -336,7 +334,7 @@ class Config(object):
     def get_alternative_url_suffixes(self):
         """Returns a list of alternative url suffixes by length."""
         items = [(v['url_suffix'].rstrip('/'), k)
-                 for k, v in six.iteritems(self.values['ALTERNATIVES'])
+                 for k, v in self.values['ALTERNATIVES'].iteritems()
                  if v['url_suffix']]
         items.sort(key=lambda x: -len(x[0]))
         return items
@@ -417,7 +415,7 @@ class Environment(object):
         self.jinja_env.filters.update(
             tojson=tojson_filter,
             latformat=lambda x, secs=True: format_lat_long(lat=x, secs=secs),
-            longformat=lambda x, secs=True: format_lat_long(int=x, secs=secs),
+            longformat=lambda x, secs=True: format_lat_long(long=x, secs=secs),
             latlongformat=lambda x, secs=True: format_lat_long(secs=secs, *x),
             # By default filters need to be side-effect free.  This is not
             # the case for this one, so we need to make it as a dummy
@@ -528,7 +526,7 @@ class Environment(object):
         if alt is None:
             if this is not None:
                 alt = getattr(this, 'alt', None)
-                if not isinstance(alt, six.string_types):
+                if not isinstance(alt, basestring):
                     alt = None
             if alt is None:
                 alt = PRIMARY_ALT

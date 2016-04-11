@@ -1,5 +1,3 @@
-from __future__ import absolute_import
-import six
 class LektorException(Exception):
 
     def __init__(self, message=None):
@@ -15,7 +13,7 @@ class LektorException(Exception):
         }
 
     def __unicode__(self):
-        return six.text_type(self.message)
+        return unicode(self.message)
 
     def __str__(self):
         return self.message.encode('utf-8')

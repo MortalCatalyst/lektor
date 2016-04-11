@@ -1,4 +1,3 @@
-from __future__ import absolute_import
 import os
 import math
 import errno
@@ -10,7 +9,6 @@ from lektor.utils import slugify, bool_from_string
 from lektor.environment import Expression, FormatExpression, PRIMARY_ALT
 from lektor.i18n import load_i18n_block, get_i18n_block
 from lektor.pagination import Pagination
-import six
 
 
 class ChildConfig(object):
@@ -258,7 +256,7 @@ class DataModel(object):
         # also includes the system fields.  This is primarily used for
         # fast internal operations but also the admin.
         self.field_map = dict((x.name, x) for x in fields)
-        for key, (ty, opts) in six.iteritems(system_fields):
+        for key, (ty, opts) in system_fields.iteritems():
             self.field_map[key] = Field(env, name=key, type=ty, options=opts)
 
         self._child_slug_tmpl = None
@@ -365,7 +363,7 @@ class DataModel(object):
 
     def process_raw_data(self, raw_data, pad=None):
         rv = {}
-        for field in six.itervalues(self.field_map):
+        for field in self.field_map.itervalues():
             value = raw_data.get(field.name)
             rv[field.name] = field.deserialize_value(value, pad=pad)
         rv['_model'] = self.id
@@ -416,7 +414,7 @@ class FlowBlockModel(object):
 
     def process_raw_data(self, raw_data, pad=None):
         rv = {}
-        for field in six.itervalues(self.field_map):
+        for field in self.field_map.itervalues():
             value = raw_data.get(field.name)
             rv[field.name] = field.deserialize_value(value, pad=pad)
         rv['_flowblock'] = self.id
@@ -645,7 +643,7 @@ def add_system_field(name, **opts):
     for key, value in opts.items():
         if key.endswith('_i18n'):
             base_key = key[:-5]
-            for lang, trans in six.iteritems(load_i18n_block(value)):
+            for lang, trans in load_i18n_block(value).iteritems():
                 opts['%s[%s]' % (base_key, lang)] = trans
 
     ty = types.builtin_types[opts.pop('type')]

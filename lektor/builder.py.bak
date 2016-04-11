@@ -1,4 +1,3 @@
-from __future__ import absolute_import
 import os
 import sys
 import stat
@@ -20,8 +19,6 @@ from lektor.environment import PRIMARY_ALT
 from lektor.buildfailures import FailureController
 
 from werkzeug.posixemulation import rename
-import six
-from six.moves import range
 
 
 def create_tables(con):
@@ -234,7 +231,7 @@ class BuildState(object):
         con = self.connect_to_database()
         try:
             cur = con.cursor()
-            for lang, title in six.iteritems(info.title_i18n):
+            for lang, title in info.title_i18n.iteritems():
                 cur.execute('''
                     insert or replace into source_info
                         (path, alt, lang, type, source, title)
@@ -494,7 +491,7 @@ class FileInfo(object):
                 for filename in sorted(os.listdir(self.filename)):
                     if self.env.is_uninteresting_source_name(filename):
                         continue
-                    if isinstance(filename, six.text_type):
+                    if isinstance(filename, unicode):
                         filename = filename.encode('utf-8')
                     h.update(filename)
                     h.update(_describe_fs_path_for_checksum(
@@ -626,7 +623,7 @@ class Artifact(object):
         if self._new_artifact_file is None:
             fd, tmp_filename = tempfile.mkstemp(
                 dir=os.path.dirname(self.dst_filename), prefix='.__trans')
-            os.chmod(tmp_filename, 0o644)
+            os.chmod(tmp_filename, 0644)
             self._new_artifact_file = tmp_filename
             return os.fdopen(fd, mode)
         return open(self._new_artifact_file, mode)
@@ -861,7 +858,7 @@ class Artifact(object):
         if exc_info is None:
             self._memorize_dependencies(
                 ctx.referenced_dependencies,
-                list(ctx.referenced_virtual_dependencies.values()))
+                ctx.referenced_virtual_dependencies.values())
             self._commit()
             return
 
@@ -876,7 +873,7 @@ class Artifact(object):
         # use a new database connection that immediately commits.
         self._memorize_dependencies(
             ctx.referenced_dependencies,
-            list(ctx.referenced_virtual_dependencies.values()),
+            ctx.referenced_virtual_dependencies.values(),
             for_failure=True)
 
         ctx.exc_info = exc_info
@@ -900,7 +897,7 @@ class PathCache(object):
         if rv is not None:
             return rv
         folder = os.path.abspath(self.env.root_path)
-        if isinstance(folder, six.text_type) and not isinstance(filename, six.text_type):
+        if isinstance(folder, unicode) and not isinstance(filename, unicode):
             filename = filename.decode(fs_enc)
         filename = os.path.normpath(os.path.join(folder, filename))
         if filename.startswith(folder):

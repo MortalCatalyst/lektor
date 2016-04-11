@@ -1,4 +1,3 @@
-from __future__ import absolute_import
 import os
 import shutil
 import posixpath
@@ -9,7 +8,6 @@ from lektor.metaformat import serialize
 from lektor.utils import atomic_open, is_valid_id, secure_filename, \
      increment_filename
 from lektor.environment import PRIMARY_ALT
-import six
 
 
 implied_keys = set(['_id', '_path', '_gid', '_alt', '_source_alt',
@@ -69,7 +67,7 @@ def make_editor_session(pad, path, is_attachment=None, alt=PRIMARY_ALT,
     else:
         if datamodel is None:
             datamodel = pad.db.get_implied_datamodel(path, is_attachment, pad)
-        elif isinstance(datamodel, six.string_types):
+        elif isinstance(datamodel, basestring):
             datamodel = pad.db.datamodels[datamodel]
 
     if exists:
@@ -80,7 +78,7 @@ def make_editor_session(pad, path, is_attachment=None, alt=PRIMARY_ALT,
         if raw_data_fallback:
             raw_data_fallback.pop(key, None)
 
-    return EditorSession(pad, id, six.text_type(path), raw_data, raw_data_fallback,
+    return EditorSession(pad, id, unicode(path), raw_data, raw_data_fallback,
                          datamodel, record, exists, is_attachment, alt)
 
 
@@ -134,7 +132,7 @@ class EditorSession(object):
             label = self.id
         can_be_deleted = not self.datamodel.protected and not self.is_root
         return {
-            'data': dict(six.iteritems(self)),
+            'data': dict(self.iteritems()),
             'record_info': {
                 'id': self.id,
                 'path': self.path,
@@ -204,13 +202,13 @@ class EditorSession(object):
             self.commit()
 
     def update(self, *args, **kwargs):
-        for key, value in six.iteritems(dict(*args, **kwargs)):
+        for key, value in dict(*args, **kwargs).iteritems():
             self[key] = value
 
     def iteritems(self, fallback=True):
         done = set()
 
-        for key, value in six.iteritems(self.original_data):
+        for key, value in self.original_data.iteritems():
             done.add(key)
             if key in implied_keys:
                 continue
@@ -220,7 +218,7 @@ class EditorSession(object):
                 yield key, value
 
         if fallback and self.fallback_data:
-            for key, value in six.iteritems(self.fallback_data):
+            for key, value in self.fallback_data.iteritems():
                 if key in implied_keys or key in done:
                     continue
                 done.add(key)
@@ -256,7 +254,7 @@ class EditorSession(object):
     __iter__ = iterkeys
 
     def __len__(self):
-        return len(list(self.items()))
+        return len(self.items())
 
     def get_fs_path(self, alt=PRIMARY_ALT):
         """The path to the record file on the file system."""
